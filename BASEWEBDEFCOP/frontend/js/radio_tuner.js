@@ -16,7 +16,7 @@ class RadioFMTuner {
         
         // Objeto Audio nativo de HTML5 (Estándar y fácil de explicar)
         this.audioElement = new Audio('https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3');
-        this.audioElement.crossOrigin = "anonymous";
+        this.audioElement.preload = "auto";
         
         // Manejar errores de carga o reproducción de audio
         this.audioElement.addEventListener('error', (e) => {
