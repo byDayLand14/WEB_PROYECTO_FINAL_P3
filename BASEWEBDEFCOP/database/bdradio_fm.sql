@@ -1,14 +1,17 @@
 -- =========================================================
--- SISTEMA DE VENTAS Y DISQUERA RADIO FM - ESTRUCTURA BD
--- Base de datos: bdventas / bdradio_fm
+-- SISTEMA DE DISQUERA Y EMISORA RADIO FM - ESTRUCTURA BD
+-- Base de datos: bdradio_fm
 -- Para importar desde phpMyAdmin
 -- =========================================================
+
+CREATE DATABASE IF NOT EXISTS bdradio_fm CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+USE bdradio_fm;
 
 SET NAMES utf8mb4;
 SET FOREIGN_KEY_CHECKS = 0;
 
 -- ---------------------------------------------------------
--- Tabla: usuarios (Administradores y Vendedores)
+-- Tabla: usuarios (Administradores y Locutores)
 -- ---------------------------------------------------------
 CREATE TABLE IF NOT EXISTS usuarios (
     id INT AUTO_INCREMENT PRIMARY KEY,
