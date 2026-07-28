@@ -18,6 +18,16 @@ class RadioFMTuner {
         this.audioElement = new Audio('https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3');
         this.audioElement.crossOrigin = "anonymous";
         
+        // Manejar errores de carga o reproducción de audio
+        this.audioElement.addEventListener('error', (e) => {
+            console.error("Error al cargar el audio:", e);
+            this.isPlaying = false;
+            this.updateUIState();
+            if (typeof mostrarNotificacion === 'function') {
+                mostrarNotificacion('No se pudo reproducir el archivo de audio. Verifique la URL de la canción (.mp3).', 'error');
+            }
+        });
+
         // Inicializar listeners de la interfaz
         this.initUI();
     }
@@ -114,16 +124,10 @@ class RadioFMTuner {
     }
 
     /**
-     * Alterna la reproducción entre Play y Pause de forma nativa
+     * Sincroniza la interfaz visual (botones, vinilo, ecualizador) con el estado del reproductor
      */
-    togglePlay() {
-        this.isPlaying = !this.isPlaying;
-
+    updateUIState() {
         if (this.isPlaying) {
-            // Reproducir audio nativo
-            this.audioElement.play().catch(err => console.log('Auto-play bloqueado:', err));
-
-            // Actualizar botones a estado Pausa
             if (this.playBtn) {
                 this.playBtn.innerHTML = '<i class="bi bi-pause-fill"></i> DETENER EMISIÓN';
                 this.playBtn.classList.replace('btn-success', 'btn-danger');
@@ -134,16 +138,10 @@ class RadioFMTuner {
             if (this.barVinyl) {
                 this.barVinyl.classList.add('spinning');
             }
-            
-            // Activar animación del ecualizador CSS
             if (this.equalizer) {
                 this.equalizer.classList.add('playing');
             }
         } else {
-            // Pausar audio nativo
-            this.audioElement.pause();
-
-            // Actualizar botones a estado Play
             if (this.playBtn) {
                 this.playBtn.innerHTML = '<i class="bi bi-play-fill"></i> ENCENDER RADIO FM';
                 this.playBtn.classList.replace('btn-danger', 'btn-success');
@@ -154,11 +152,58 @@ class RadioFMTuner {
             if (this.barVinyl) {
                 this.barVinyl.classList.remove('spinning');
             }
-            
-            // Detener animación del ecualizador CSS
             if (this.equalizer) {
                 this.equalizer.classList.remove('playing');
             }
+        }
+    }
+
+    /**
+     * Reproduce un archivo de audio de forma directa
+     * @param {string} url - URL del archivo MP3
+     * @param {string} title - Título para la barra flotante (opcional)
+     */
+    playAudio(url = null, title = null) {
+        if (title && this.barSongTitle) {
+            this.barSongTitle.innerText = title;
+        }
+        if (url && url.trim() !== '') {
+            this.audioElement.src = url;
+        }
+
+        const playPromise = this.audioElement.play();
+        if (playPromise !== undefined) {
+            playPromise.then(() => {
+                this.isPlaying = true;
+                this.updateUIState();
+            }).catch(err => {
+                console.warn('Reproducción bloqueada o errónea:', err);
+                this.isPlaying = false;
+                this.updateUIState();
+                if (typeof mostrarNotificacion === 'function') {
+                    mostrarNotificacion('El navegador bloqueó la reproducción automática. Presione Play para escuchar.', 'info');
+                }
+            });
+        }
+    }
+
+    /**
+     * Pausa la reproducción de audio
+     */
+    pauseAudio() {
+        this.audioElement.pause();
+        this.isPlaying = false;
+        this.updateUIState();
+    }
+
+    /**
+     * Alterna entre reproducir y pausar
+     */
+    togglePlay() {
+        if (this.isPlaying) {
+            this.pauseAudio();
+        } else {
+            this.playAudio();
         }
     }
 
