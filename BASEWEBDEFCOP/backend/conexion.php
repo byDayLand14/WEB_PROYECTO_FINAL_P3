@@ -5,10 +5,10 @@ ini_set('display_errors', '1');
 ini_set('display_startup_errors', '1');
 error_reporting(E_ALL);
 
-$host = 'localhost';
-$user = 'root';
-$password = '';
-$database = 'bdradio_fm';
+$host = 'bf4dq62gsftlnawwgfew-mysql.services.clever-cloud.com';
+$user = 'uru9hemcd4r4j7ui';
+$password = '3iQOEaEcW20EV9qup9II';
+$database = 'bf4dq62gsftlnawwgfew';
 $charset = 'utf8mb4';
 
 $dnsWithoutDb = "mysql:host=$host;charset=$charset";
