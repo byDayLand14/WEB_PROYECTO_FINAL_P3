@@ -349,9 +349,7 @@ if (!isset($_SESSION['usuario_activo'])) {
 
         function reproducirPistaBar(url, titulo, artista) {
             if (window.radioFM) {
-                window.radioFM.barSongTitle.textContent = `${artista} — ${titulo}`;
-                window.radioFM.audioElement.src = url || 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3';
-                window.radioFM.togglePlay();
+                window.radioFM.playAudio(url, `${artista} — ${titulo}`);
             }
         }
 
