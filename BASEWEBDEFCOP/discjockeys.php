@@ -178,6 +178,15 @@ if (!isset($_SESSION['usuario_activo'])) {
                             </div>
                         </div>
 
+                        <div class="mb-3">
+                            <label for="dj-foto" class="form-label">
+                                <i class="bi bi-image me-1"></i> URL de la Foto / Foto de Perfil
+                            </label>
+                            <input type="url" class="form-control" id="dj-foto" name="foto"
+                                placeholder="Ej: https://.../locutor.jpg">
+                            <div class="form-text"><i class="bi bi-info-circle me-1"></i>Pega la URL o enlace directo de la imagen del DJ.</div>
+                        </div>
+
                         <div class="mb-2">
                             <label for="dj-estado" class="form-label">
                                 <i class="bi bi-toggle-on me-1"></i> Estado
@@ -211,12 +220,12 @@ if (!isset($_SESSION['usuario_activo'])) {
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
                 </div>
                 <div class="modal-body" style="font-size: 0.9rem; color: var(--text-secondary);">
-                    ¿Deseas eliminar este locutor del directorio? Esta acción no se puede deshacer.
+                    ¿Deseas eliminar este locutor del sistema? Esta acción no se puede deshacer.
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cancelar</button>
                     <button type="button" class="btn btn-danger btn-sm" id="btn-confirmar-eliminar-dj">
-                        <i class="bi bi-trash me-1"></i> Sí, eliminar
+                        <i class="bi bi-trash me-1"></i>Eliminar
                     </button>
                 </div>
             </div>
@@ -229,12 +238,12 @@ if (!isset($_SESSION['usuario_activo'])) {
     <script src="frontend/js/validaciones.js"></script>
     <script src="frontend/js/radio_tuner.js"></script>
     <script>
-        let djIdEliminar = null;
+        let idDjEliminar = null;
 
         document.addEventListener('DOMContentLoaded', () => {
             cargarDiscjockeys();
             document.getElementById('btn-confirmar-eliminar-dj').addEventListener('click', () => {
-                if (djIdEliminar !== null) ejecutarEliminarDj(djIdEliminar);
+                if (idDjEliminar !== null) ejecutarEliminarDj(idDjEliminar);
             });
         });
 
@@ -251,7 +260,8 @@ if (!isset($_SESSION['usuario_activo'])) {
 
                     if (res.estado === 'exito' && res.datos.length > 0) {
                         res.datos.forEach(dj => {
-                            const img       = dj.id % 2 === 0 ? 'frontend/img/dj_2.png' : 'frontend/img/dj_1.png';
+                            const defaultImg = dj.id % 2 === 0 ? 'frontend/img/dj_2.png' : 'frontend/img/dj_1.png';
+                            const img = dj.foto && dj.foto.trim() !== '' ? dj.foto : defaultImg;
                             const activoBadge = dj.estado == 1
                                 ? '<span class="position-absolute bottom-0 end-0 badge bg-success rounded-circle p-1 border border-dark" title="Activo" style="width: 14px; height: 14px;"></span>'
                                 : '';
@@ -262,7 +272,7 @@ if (!isset($_SESSION['usuario_activo'])) {
                                 <div class="col-sm-6 col-md-4 col-lg-3">
                                     <div class="glass-card text-center p-4 h-100 radio-card-effect d-flex flex-column">
                                         <div class="mb-3 position-relative d-inline-flex justify-content-center">
-                                            <img src="${img}" class="artist-card-img" alt="${escapeHTML(dj.apodo_dj)}" loading="lazy">
+                                            <img src="${img}" class="artist-card-img rounded-circle" style="width:75px; height:75px; object-fit:cover;" alt="${escapeHTML(dj.apodo_dj)}" loading="lazy" onerror="this.src='${defaultImg}'">
                                             ${activoBadge}
                                         </div>
                                         <h6 class="fw-bold mb-1" style="color: var(--text-primary);">${escapeHTML(dj.apodo_dj)}</h6>
@@ -330,6 +340,7 @@ if (!isset($_SESSION['usuario_activo'])) {
             form.reset();
             form.classList.remove('was-validated');
             document.getElementById('dj-id').value = '';
+            document.getElementById('dj-foto').value = '';
             document.getElementById('modalDjTitulo').textContent = 'Registrar Locutor / DJ';
         }
 
@@ -340,6 +351,7 @@ if (!isset($_SESSION['usuario_activo'])) {
             document.getElementById('dj-apodo').value         = dj.apodo_dj;
             document.getElementById('dj-experiencia').value   = dj.experiencia_anos;
             document.getElementById('dj-turno').value         = dj.turno;
+            document.getElementById('dj-foto').value          = dj.foto || '';
             document.getElementById('dj-estado').value        = dj.estado;
             document.getElementById('modalDjTitulo').textContent = 'Editar Locutor / DJ';
             const form = document.getElementById('form-dj');
