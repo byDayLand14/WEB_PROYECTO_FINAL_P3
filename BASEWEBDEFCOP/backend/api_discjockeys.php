@@ -36,6 +36,7 @@ try {
         $apodo_dj = trim($_POST['apodo_dj'] ?? '');
         $experiencia_anos = (int)($_POST['experiencia_anos'] ?? 1);
         $turno = trim($_POST['turno'] ?? 'Mañana');
+        $foto = trim($_POST['foto'] ?? $_POST['imagen_url'] ?? '');
         $estado = isset($_POST['estado']) ? (int)$_POST['estado'] : 1;
 
         if (empty($cedula) || empty($nombre) || empty($apodo_dj)) {
@@ -52,8 +53,8 @@ try {
                 exit();
             }
 
-            $stmt = $pdo->prepare("UPDATE discjockey SET cedula = ?, nombre = ?, apodo_dj = ?, experiencia_anos = ?, turno = ?, estado = ? WHERE id = ?");
-            $stmt->execute([$cedula, $nombre, $apodo_dj, $experiencia_anos, $turno, $estado, $id]);
+            $stmt = $pdo->prepare("UPDATE discjockey SET cedula = ?, nombre = ?, apodo_dj = ?, experiencia_anos = ?, turno = ?, foto = ?, estado = ? WHERE id = ?");
+            $stmt->execute([$cedula, $nombre, $apodo_dj, $experiencia_anos, $turno, $foto, $estado, $id]);
             echo json_encode(['estado' => 'exito', 'mensaje' => 'Locutor actualizado con éxito.']);
         } else {
             // Insertar
@@ -64,8 +65,8 @@ try {
                 exit();
             }
 
-            $stmt = $pdo->prepare("INSERT INTO discjockey (cedula, nombre, apodo_dj, experiencia_anos, turno, estado) VALUES (?, ?, ?, ?, ?, ?)");
-            $stmt->execute([$cedula, $nombre, $apodo_dj, $experiencia_anos, $turno, $estado]);
+            $stmt = $pdo->prepare("INSERT INTO discjockey (cedula, nombre, apodo_dj, experiencia_anos, turno, foto, estado) VALUES (?, ?, ?, ?, ?, ?, ?)");
+            $stmt->execute([$cedula, $nombre, $apodo_dj, $experiencia_anos, $turno, $foto, $estado]);
             echo json_encode(['estado' => 'exito', 'mensaje' => 'Locutor creado con éxito.']);
         }
         exit();
