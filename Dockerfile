@@ -7,7 +7,7 @@ RUN docker-php-ext-install mysqli pdo pdo_mysql
 RUN a2enmod rewrite
 
 # Copia todo tu proyecto a la carpeta pública del servidor
-COPY . /var/www/html/
+COPY ./BASEWEBDEFCOP/ /var/www/html/
 
 # Expone el puerto 80 para la web
 EXPOSE 80
