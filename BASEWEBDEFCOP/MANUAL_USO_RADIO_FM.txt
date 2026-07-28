@@ -1,0 +1,142 @@
+====================================================================
+      MANUAL DE USUARIO COMPLETO: SISTEMA DISQUERA, RADIO FM Y POS
+====================================================================
+
+Este manual explica paso a paso cómo gestionar todos los módulos del sistema:
+Sintonizador FM, Grupos Musicales, Discos, Canciones, DJs, Programación FM, 
+Catálogo de Productos, Clientes, Punto de Venta (POS) e Historial de Ventas.
+
+====================================================================
+1. MÓDULO: SINTONIZADOR Y REPRODUCTOR FM EN VIVO (sintonizador.php)
+====================================================================
+• Encendido / Apagado:
+  - Haz clic en el botón verde "ENCENDER RADIO FM" o en el Play (▶) 
+    de la barra flotante inferior.
+  - El botón cambiará a "DETENER EMISIÓN", el vinilo girará y el ecualizador 
+    CSS se animará al ritmo de la música.
+
+• Cambio de Frecuencia (87.5 a 108.0 MHz):
+  - Slider Manual: Arrastra la barra para afinar la frecuencia.
+  - Botones (⏮ / ⏭): Ajustan la frecuencia en pasos de 0.4 MHz.
+  - Presets (P1 a P6): Clic directo en botones de memoria (88.5, 92.3, 
+    98.1, 102.5, 104.9, 107.3 MHz).
+
+• Información en Vivo:
+  - Al cambiar de frecuencia, el sistema consulta automáticamente a la BD 
+    la canción y el DJ transmitiendo en esa frecuencia.
+
+• Control de Volumen:
+  - Desliza el control de volumen en la barra inferior (0% a 100%).
+
+
+====================================================================
+2. MÓDULO: GRUPOS Y ARTISTAS MUSICALES (grupos.php)
+====================================================================
+• Registrar Nuevo Grupo:
+  1. Ve al menú lateral -> "Grupos Musicales".
+  2. Haz clic en el botón "+ Nuevo Grupo".
+  3. Ingresa el Nombre de la banda (ej: Soda Stereo), Género (ej: Rock Latino), 
+     País de Origen (ej: Argentina) y Año de Formación.
+  4. Haz clic en "Guardar".
+
+• Editar o Eliminar Grupo:
+  - En la tabla de grupos, usa el botón "✏️ Editar" para actualizar datos 
+    o "🗑️ Eliminar" para desactivar el grupo.
+
+
+====================================================================
+3. MÓDULO: DISCOS Y ÁLBUMES (discos.php)
+====================================================================
+• Registrar Nuevo Álbum:
+  1. Ve al menú lateral -> "Catálogo de Discos".
+  2. Haz clic en "+ Nuevo Disco".
+  3. Selecciona el Grupo Musical al que pertenece el disco.
+  4. Ingresa el Título del disco (ej: Canción Animal), Año de Lanzamiento, 
+     Precio de Venta (ej: 15.00) y Stock disponible.
+  5. Haz clic en "Guardar".
+
+
+====================================================================
+4. MÓDULO: CANCIONES Y PISTAS MUSICALES (canciones.php)
+====================================================================
+• Agregar Canción a un Disco:
+  1. Ve al menú lateral -> "Pistas Canciones".
+  2. Haz clic en "+ Nueva Canción".
+  3. Selecciona el Disco o Álbum correspondiente.
+  4. Ingresa el Título de la canción (ej: De Música Ligera), la Duración 
+     en segundos (ej: 212) y la URL del audio MP3.
+  5. Haz clic en "Guardar".
+
+
+====================================================================
+5. MÓDULO: DISC JOCKEYS / LOCUTORES (discjockeys.php)
+====================================================================
+• Registrar DJ o Locutor:
+  1. Ve al menú lateral -> "Disc Jockeys".
+  2. Haz clic en "+ Nuevo DJ".
+  3. Completa el Nombre Real, Apodo o Nombre Artístico (ej: DJ Alex Wave), 
+     Estilo Musical predilecto y Turno de Locución (Mañana, Tarde, Noche, Madrugada).
+  4. Haz clic en "Guardar".
+
+
+====================================================================
+6. MÓDULO: PROGRAMACIÓN DE PARRILLA FM (reproducciones.php)
+====================================================================
+• Asignar Canción y DJ a una Frecuencia FM:
+  1. Ve al menú -> "Programación FM".
+  2. Haz clic en "+ Programar Transmisión".
+  3. Selecciona la Frecuencia FM (ej: 98.10 MHz).
+  4. Elige el DJ que estará al aire y la Canción que sonará.
+  5. Define el estado ("programada" o "al_aire").
+  6. Al guardar, cuando sintonices esa frecuencia en el sintonizador, 
+     se mostrará automáticamente dicha información al aire.
+
+
+====================================================================
+7. MÓDULO: CATÁLOGO DE PRODUCTOS POS (catalogo.php)
+====================================================================
+• Agregar Producto a la Tienda:
+  1. Ve al menú -> "Catálogo de Productos".
+  2. Haz clic en "+ Nuevo Producto".
+  3. Ingresa Código de Barras, Nombre del Producto, Descripción, Precio y Stock.
+  4. Haz clic en "Guardar".
+
+
+====================================================================
+8. MÓDULO: GESTIÓN DE CLIENTES (clientes.php)
+====================================================================
+• Registrar Cliente:
+  1. Ve al menú -> "Gestión Clientes".
+  2. Haz clic en "+ Nuevo Cliente".
+  3. Ingresa Cédula / RUC (único e irrepetible), Nombre completo, Teléfono y Email.
+  4. Haz clic en "Guardar".
+  (Nota: La cédula no se puede modificar una vez creado el cliente por seguridad).
+
+
+====================================================================
+9. MÓDULO: PUNTO DE VENTA / POS (pos.php)
+====================================================================
+• Realizar una Venta:
+  1. Ve al menú -> "Punto de Venta POS".
+  2. Selecciona el Cliente (o déjalo en "Consumidor Final").
+  3. Busca o escanea un producto y haz clic en "Agregar".
+  4. Ajusta la cantidad de cada item en el carrito.
+  5. El sistema calcula automáticamente Subtotal, IVA (15%) y Total.
+  6. Ingresa el "Monto Pagado" por el cliente (ej: $20.00).
+  7. El sistema calcula el Cambio automáticamente. Si el monto es suficiente, 
+     haz clic en "Completar Venta y Facturar".
+
+
+====================================================================
+10. MÓDULO: HISTORIAL Y ANULACIÓN DE VENTAS (historial.php)
+====================================================================
+• Consultar e Imprimir Facturas:
+  1. Ve al menú -> "Historial Ventas".
+  2. Filtra por número de factura, cliente o rango de fechas.
+  3. Haz clic en "Ver Detalle" para revisar los productos comprados.
+  4. Puedes hacer clic en "Anular Venta" si se realizó por error, 
+     lo cual devolverá los productos al stock automáticamente.
+
+====================================================================
+      SISTEMA INTEGRADO RADIO STEREO WAVE FM & DISQUERA POS v3.0
+====================================================================
