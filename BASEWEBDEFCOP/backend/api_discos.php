@@ -16,37 +16,23 @@ $accion = $_GET['accion'] ?? $_POST['accion'] ?? 'listar';
 try {
     if ($accion === 'listar') {
         $busqueda = trim($_GET['buscar'] ?? '');
-        $grupo_id = (int)($_GET['grupo_id'] ?? 0);
-
-        $sql = "SELECT d.*, g.nombre AS grupo_nombre 
-                FROM disco d 
-                JOIN grupo g ON d.grupo_id = g.id ";
-        $params = [];
-        $condiciones = [];
-
-        if ($grupo_id > 0) {
-            $condiciones[] = "d.grupo_id = ?";
-            $params[] = $grupo_id;
-        }
-
         if ($busqueda !== '') {
-            $condiciones[] = "(d.titulo LIKE ? OR g.nombre LIKE ? OR d.discografica LIKE ?)";
+            $sql = "SELECT d.*, g.nombre AS grupo_nombre 
+                    FROM disco d 
+                    JOIN grupo g ON d.grupo_id = g.id 
+                    WHERE (d.titulo LIKE ? OR g.nombre LIKE ? OR d.discografica LIKE ?) 
+                    ORDER BY d.id DESC";
             $like = "%$busqueda%";
-            $params[] = $like;
-            $params[] = $like;
-            $params[] = $like;
+            $stmt = $pdo->prepare($sql);
+            $stmt->execute([$like, $like, $like]);
+        } else {
+            $sql = "SELECT d.*, g.nombre AS grupo_nombre 
+                    FROM disco d 
+                    JOIN grupo g ON d.grupo_id = g.id 
+                    ORDER BY d.id DESC";
+            $stmt = $pdo->query($sql);
         }
-
-        if (!empty($condiciones)) {
-            $sql .= " WHERE " . implode(" AND ", $condiciones);
-        }
-
-        $sql .= " ORDER BY d.id DESC";
-
-        $stmt = $pdo->prepare($sql);
-        $stmt->execute($params);
         $discos = $stmt->fetchAll();
-
         echo json_encode(['estado' => 'exito', 'datos' => $discos]);
         exit();
     }
@@ -58,22 +44,24 @@ try {
         $anio_lanzamiento = (int)($_POST['anio_lanzamiento'] ?? date('Y'));
         $discografica = trim($_POST['discografica'] ?? '');
         $formato = trim($_POST['formato'] ?? 'Digital');
+        $precio = (float)($_POST['precio'] ?? 0.0);
+        $stock = (int)($_POST['stock'] ?? 0);
         $imagen_url = trim($_POST['imagen_url'] ?? '');
         $estado = isset($_POST['estado']) ? (int)$_POST['estado'] : 1;
 
         if ($grupo_id <= 0 || empty($titulo)) {
-            echo json_encode(['estado' => 'error', 'mensaje' => 'Seleccione un grupo y especifique el título del disco.']);
+            echo json_encode(['estado' => 'error', 'mensaje' => 'Por favor seleccione un grupo musical e ingrese el título del disco.']);
             exit();
         }
 
         if ($id) {
-            $stmt = $pdo->prepare("UPDATE disco SET grupo_id = ?, titulo = ?, anio_lanzamiento = ?, discografica = ?, formato = ?, imagen_url = ?, estado = ? WHERE id = ?");
-            $stmt->execute([$grupo_id, $titulo, $anio_lanzamiento, $discografica, $formato, $imagen_url, $estado, $id]);
+            $stmt = $pdo->prepare("UPDATE disco SET grupo_id = ?, titulo = ?, anio_lanzamiento = ?, discografica = ?, formato = ?, precio = ?, stock = ?, imagen_url = ?, estado = ? WHERE id = ?");
+            $stmt->execute([$grupo_id, $titulo, $anio_lanzamiento, $discografica, $formato, $precio, $stock, $imagen_url, $estado, $id]);
             echo json_encode(['estado' => 'exito', 'mensaje' => 'Disco actualizado correctamente.']);
         } else {
-            $stmt = $pdo->prepare("INSERT INTO disco (grupo_id, titulo, anio_lanzamiento, discografica, formato, imagen_url, estado) VALUES (?, ?, ?, ?, ?, ?, ?)");
-            $stmt->execute([$grupo_id, $titulo, $anio_lanzamiento, $discografica, $formato, $imagen_url, $estado]);
-            echo json_encode(['estado' => 'exito', 'mensaje' => 'Disco guardado correctamente.']);
+            $stmt = $pdo->prepare("INSERT INTO disco (grupo_id, titulo, anio_lanzamiento, discografica, formato, precio, stock, imagen_url, estado) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)");
+            $stmt->execute([$grupo_id, $titulo, $anio_lanzamiento, $discografica, $formato, $precio, $stock, $imagen_url, $estado]);
+            echo json_encode(['estado' => 'exito', 'mensaje' => 'Disco registrado correctamente.']);
         }
         exit();
     }
