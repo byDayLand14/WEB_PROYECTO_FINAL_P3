@@ -22,9 +22,10 @@ $opciones = [
 
 try {
     $pdo = new PDO($dns, $user, $password, $opciones);
-    // Auto-migraciones de columnas para portadas de discos y fotos de grupos
+    // Auto-migraciones de columnas para portadas de discos, fotos de grupos y foto de DJs
     try { $pdo->exec("ALTER TABLE disco ADD COLUMN imagen_url VARCHAR(255) NULL AFTER formato;"); } catch (Throwable $ignored) {}
     try { $pdo->exec("ALTER TABLE grupo ADD COLUMN imagen_url VARCHAR(255) NULL AFTER anio_formacion;"); } catch (Throwable $ignored) {}
+    try { $pdo->exec("ALTER TABLE discjockey ADD COLUMN foto VARCHAR(255) NULL AFTER turno;"); } catch (Throwable $ignored) {}
     
     // Forzar actualización de nombre para asegurar que la sesión nunca muestre datos de prueba anteriores
     $pdo->exec("UPDATE usuarios SET nombre = 'Administrador FM' WHERE usuario = 'admin';");
@@ -35,7 +36,7 @@ try {
         $pdoInit->exec("CREATE DATABASE IF NOT EXISTS `$database` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;");
         $pdo = new PDO($dns, $user, $password, $opciones);
         
-        $sqlPath = __DIR__ . '/../init_db/init_radio_fm.sql';
+        $sqlPath = __DIR__ . '/../database/bdradio_fm.sql';
         if (file_exists($sqlPath)) {
             $sqlContent = file_get_contents($sqlPath);
             $pdo->exec($sqlContent);
