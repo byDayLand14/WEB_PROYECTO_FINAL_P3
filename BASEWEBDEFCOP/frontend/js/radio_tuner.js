@@ -179,6 +179,41 @@ class RadioFMTuner {
     }
 
     /**
+     * Normaliza enlaces de audio de servicios como tmpfiles.org, dropbox, google drive, etc.
+     * para transformarlos automáticamente en enlaces de streaming directo de MP3.
+     * @param {string} url 
+     * @returns {string} URL directa de audio
+     */
+    normalizarUrlAudio(url) {
+        if (!url || typeof url !== 'string' || url.trim() === '') {
+            return this.fallbackAudioUrl;
+        }
+        let finalUrl = url.trim();
+        
+        // 1. Convertir enlaces de tmpfiles.org (insertar /dl/ para stream directo de audio)
+        // Ejemplo: https://tmpfiles.org/12345/song.mp3 -> https://tmpfiles.org/dl/12345/song.mp3
+        if (finalUrl.includes('tmpfiles.org/') && !finalUrl.includes('tmpfiles.org/dl/')) {
+            finalUrl = finalUrl.replace('tmpfiles.org/', 'tmpfiles.org/dl/');
+        }
+
+        // 2. Convertir enlaces de Dropbox a descarga directa
+        if (finalUrl.includes('dropbox.com/')) {
+            finalUrl = finalUrl.replace('www.dropbox.com', 'dl.dropboxusercontent.com')
+                               .replace('?dl=0', '?dl=1');
+        }
+
+        // 3. Convertir enlaces de Google Drive
+        if (finalUrl.includes('drive.google.com/file/d/')) {
+            const match = finalUrl.match(/\/file\/d\/([^\/]+)/);
+            if (match && match[1]) {
+                finalUrl = `https://docs.google.com/uc?export=download&id=${match[1]}`;
+            }
+        }
+
+        return finalUrl;
+    }
+
+    /**
      * Reproduce un archivo de audio de forma directa
      * @param {string} url - URL del archivo MP3
      * @param {string} title - Título para la barra flotante (opcional)
@@ -187,11 +222,12 @@ class RadioFMTuner {
         if (title && this.barSongTitle) {
             this.barSongTitle.innerText = title;
         }
-        if (url && url.trim() !== '') {
-            const urlAbsoluta = new URL(url, window.location.href).href;
-            if (this.audioElement.src !== urlAbsoluta && this.audioElement.src !== url) {
-                this.audioElement.src = url;
-            }
+        
+        const audioUrlFinal = this.normalizarUrlAudio(url || this.audioElement.src);
+        const urlAbsoluta = new URL(audioUrlFinal, window.location.href).href;
+        
+        if (this.audioElement.src !== urlAbsoluta && this.audioElement.src !== audioUrlFinal) {
+            this.audioElement.src = audioUrlFinal;
         }
 
         const playPromise = this.audioElement.play();
@@ -204,7 +240,7 @@ class RadioFMTuner {
                 this.isPlaying = false;
                 this.updateUIState();
                 if (typeof mostrarNotificacion === 'function') {
-                    mostrarNotificacion('El navegador bloqueó la reproducción automática. Presione Play para escuchar.', 'info');
+                    mostrarNotificacion('El navegador bloqueó la reproducción automática o la URL de audio no es válida. Presione Play.', 'info');
                 }
             });
         }
@@ -254,7 +290,7 @@ class RadioFMTuner {
                         this.barSongTitle.innerText = actual.grupo_nombre + " - " + actual.cancion_titulo;
                     }
                     if (actual.audio_url && actual.audio_url.trim() !== '') {
-                        targetAudioUrl = actual.audio_url;
+                        targetAudioUrl = this.normalizarUrlAudio(actual.audio_url);
                     }
                 } else {
                     // Datos por defecto si no hay canción programada en esa frecuencia exacta
