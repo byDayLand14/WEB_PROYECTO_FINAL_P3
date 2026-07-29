@@ -121,7 +121,7 @@ if (!isset($_SESSION['usuario_activo'])) {
                     </h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
                 </div>
-                <form id="form-cancion" onsubmit="guardarCancion(event)" class="needs-validation" novalidate>
+                <form id="form-cancion" onsubmit="guardarCancion(event)" class="needs-validation" novalidate enctype="multipart/form-data">
                     <div class="modal-body">
                         <input type="hidden" id="cancion-id" name="id">
 
@@ -185,14 +185,21 @@ if (!isset($_SESSION['usuario_activo'])) {
                             <div class="invalid-feedback"><i class="bi bi-exclamation-circle me-1"></i>El género es obligatorio.</div>
                         </div>
 
+                        <div class="mb-3">
+                            <label for="cancion-archivo" class="form-label">
+                                <i class="bi bi-upload me-1"></i> Subir archivo MP3 desde tu equipo <small class="text-success fw-bold">(Gratis y Permanente)</small>
+                            </label>
+                            <input type="file" class="form-control" id="cancion-archivo" name="archivo_mp3" accept="audio/*">
+                            <div class="form-text"><i class="bi bi-info-circle me-1"></i>Selecciona una canción en formato .mp3 de tu computadora.</div>
+                        </div>
+
                         <div class="mb-1">
                             <label for="cancion-audio" class="form-label">
-                                <i class="bi bi-link-45deg me-1"></i> URL de audio (.mp3) <small class="text-muted fw-normal">(opcional)</small>
+                                <i class="bi bi-link-45deg me-1"></i> O ingresa una URL de audio externa (.mp3) <small class="text-muted fw-normal">(opcional)</small>
                             </label>
                             <input type="url" class="form-control" id="cancion-audio" name="audio_url"
-                                placeholder="https://ejemplo.com/cancion.mp3">
-                            <div class="form-text"><i class="bi bi-info-circle me-1"></i>Enlace al archivo MP3 para previsualización.</div>
-                            <div class="invalid-feedback"><i class="bi bi-exclamation-circle me-1"></i>Ingresa una URL válida (https://...).</div>
+                                placeholder="Si la dejas vacía, se auto-asigna un audio gratis de prueba">
+                            <div class="form-text"><i class="bi bi-info-circle me-1"></i>Si dejas este campo en blanco, el sistema le asigna música automáticamente.</div>
                         </div>
                     </div>
                     <div class="modal-footer">
