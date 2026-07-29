@@ -68,8 +68,25 @@ try {
             exit();
         }
 
+        // Procesar subida directa de archivo MP3 desde la computadora
+        if (isset($_FILES['archivo_mp3']) && $_FILES['archivo_mp3']['error'] === UPLOAD_ERR_OK) {
+            $ext = strtolower(pathinfo($_FILES['archivo_mp3']['name'], PATHINFO_EXTENSION));
+            if (in_array($ext, ['mp3', 'wav', 'ogg', 'm4a', 'aac', 'flac'])) {
+                $uploadDir = __DIR__ . '/../frontend/audio/';
+                if (!is_dir($uploadDir)) {
+                    @mkdir($uploadDir, 0777, true);
+                }
+                $nuevoNombre = 'audio_' . time() . '_' . rand(1000, 9999) . '.' . $ext;
+                $destino = $uploadDir . $nuevoNombre;
+                if (move_uploaded_file($_FILES['archivo_mp3']['tmp_name'], $destino)) {
+                    $audio_url = 'frontend/audio/' . $nuevoNombre;
+                }
+            }
+        }
+
         if (empty($audio_url)) {
-            $audio_url = 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3';
+            $songIndex = (($numero_pista - 1) % 16) + 1;
+            $audio_url = "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-{$songIndex}.mp3";
         }
 
         if ($id) {
