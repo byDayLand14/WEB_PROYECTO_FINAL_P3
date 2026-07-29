@@ -13,18 +13,38 @@ class RadioFMTuner {
         // Estado del reproductor
         this.frequency = 98.10;
         this.isPlaying = false;
+        this.fallbackAudioUrl = 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3';
         
         // Objeto Audio nativo de HTML5 (Estándar y fácil de explicar)
-        this.audioElement = new Audio('https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3');
+        this.audioElement = new Audio(this.fallbackAudioUrl);
         this.audioElement.preload = "auto";
+        this.audioElement.loop = true; // Transmisión continua sin interrupciones tipo Emisora FM
         
+        // Manejar finalización de pista
+        this.audioElement.addEventListener('ended', () => {
+            if (this.isPlaying) {
+                this.audioElement.currentTime = 0;
+                this.audioElement.play().catch(err => console.warn("Error en re-play:", err));
+            }
+        });
+
         // Manejar errores de carga o reproducción de audio
         this.audioElement.addEventListener('error', (e) => {
             console.error("Error al cargar el audio:", e);
-            this.isPlaying = false;
-            this.updateUIState();
-            if (typeof mostrarNotificacion === 'function') {
-                mostrarNotificacion('No se pudo reproducir el archivo de audio. Verifique la URL de la canción (.mp3).', 'error');
+            
+            // Si falló la URL actual de la base de datos, intentar URL de respaldo
+            if (this.audioElement.src !== this.fallbackAudioUrl && !this.audioElement.src.endsWith('SoundHelix-Song-1.mp3')) {
+                console.warn("Cambiando a audio de respaldo (fallback)...");
+                this.audioElement.src = this.fallbackAudioUrl;
+                if (this.isPlaying) {
+                    this.audioElement.play().catch(() => {});
+                }
+            } else {
+                this.isPlaying = false;
+                this.updateUIState();
+                if (typeof mostrarNotificacion === 'function') {
+                    mostrarNotificacion('No se pudo reproducir el archivo de audio. Verifique su conexión.', 'error');
+                }
             }
         });
 
@@ -168,7 +188,10 @@ class RadioFMTuner {
             this.barSongTitle.innerText = title;
         }
         if (url && url.trim() !== '') {
-            this.audioElement.src = url;
+            const urlAbsoluta = new URL(url, window.location.href).href;
+            if (this.audioElement.src !== urlAbsoluta && this.audioElement.src !== url) {
+                this.audioElement.src = url;
+            }
         }
 
         const playPromise = this.audioElement.play();
@@ -219,6 +242,8 @@ class RadioFMTuner {
         fetch(`backend/api_reproducciones.php?accion=listar&frecuencia=${freq}`)
             .then(res => res.json())
             .then(data => {
+                let targetAudioUrl = this.fallbackAudioUrl;
+
                 if (data.estado === 'exito' && data.datos && data.datos.length > 0) {
                     const actual = data.datos[0];
                     if (infoTitle) infoTitle.innerText = actual.cancion_titulo;
@@ -228,9 +253,8 @@ class RadioFMTuner {
                     if (this.barSongTitle) {
                         this.barSongTitle.innerText = actual.grupo_nombre + " - " + actual.cancion_titulo;
                     }
-                    if (actual.audio_url) {
-                        this.audioElement.src = actual.audio_url;
-                        if (this.isPlaying) this.audioElement.play().catch(() => {});
+                    if (actual.audio_url && actual.audio_url.trim() !== '') {
+                        targetAudioUrl = actual.audio_url;
                     }
                 } else {
                     // Datos por defecto si no hay canción programada en esa frecuencia exacta
@@ -240,6 +264,15 @@ class RadioFMTuner {
 
                     if (this.barSongTitle) {
                         this.barSongTitle.innerText = "FM Radio - " + freq.toFixed(1) + " MHz Stereo";
+                    }
+                }
+
+                // Evitar reiniciar el audio si la URL no ha cambiado
+                const urlAbsoluta = new URL(targetAudioUrl, window.location.href).href;
+                if (this.audioElement.src !== urlAbsoluta && this.audioElement.src !== targetAudioUrl) {
+                    this.audioElement.src = targetAudioUrl;
+                    if (this.isPlaying) {
+                        this.audioElement.play().catch(err => console.warn("Error reanudando audio tras cambio de frecuencia:", err));
                     }
                 }
             })
