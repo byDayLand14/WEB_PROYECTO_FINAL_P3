@@ -1,6 +1,11 @@
 <?php
 declare(strict_types=1);
 session_start();
+
+// Desactivar display_errors en la API para evitar romper la respuesta JSON con Warnings de PHP
+ini_set('display_errors', '0');
+error_reporting(E_ALL);
+
 header('Content-Type: application/json; charset=utf-8');
 
 require_once __DIR__ . '/conexion.php';
@@ -69,17 +74,32 @@ try {
         }
 
         // Procesar subida directa de archivo MP3 desde la computadora
-        if (isset($_FILES['archivo_mp3']) && $_FILES['archivo_mp3']['error'] === UPLOAD_ERR_OK) {
-            $ext = strtolower(pathinfo($_FILES['archivo_mp3']['name'], PATHINFO_EXTENSION));
-            if (in_array($ext, ['mp3', 'wav', 'ogg', 'm4a', 'aac', 'flac'])) {
-                $uploadDir = __DIR__ . '/../frontend/audio/';
-                if (!is_dir($uploadDir)) {
-                    @mkdir($uploadDir, 0777, true);
-                }
-                $nuevoNombre = 'audio_' . time() . '_' . rand(1000, 9999) . '.' . $ext;
-                $destino = $uploadDir . $nuevoNombre;
-                if (move_uploaded_file($_FILES['archivo_mp3']['tmp_name'], $destino)) {
-                    $audio_url = 'frontend/audio/' . $nuevoNombre;
+        if (isset($_FILES['archivo_mp3']) && $_FILES['archivo_mp3']['name'] !== '') {
+            $fileError = $_FILES['archivo_mp3']['error'];
+
+            if ($fileError === UPLOAD_ERR_INI_SIZE || $fileError === UPLOAD_ERR_FORM_SIZE) {
+                echo json_encode([
+                    'estado' => 'error',
+                    'mensaje' => 'El archivo MP3 supera el tamaño máximo permitido por PHP (upload_max_filesize). Elige un MP3 más pequeño o ingresa la URL.'
+                ]);
+                exit();
+            }
+
+            if ($fileError === UPLOAD_ERR_OK) {
+                $ext = strtolower(pathinfo($_FILES['archivo_mp3']['name'], PATHINFO_EXTENSION));
+                if (in_array($ext, ['mp3', 'wav', 'ogg', 'm4a', 'aac', 'flac'])) {
+                    $uploadDir = __DIR__ . '/../frontend/audio/';
+                    if (!is_dir($uploadDir)) {
+                        @mkdir($uploadDir, 0777, true);
+                    }
+                    $nuevoNombre = 'audio_' . time() . '_' . rand(1000, 9999) . '.' . $ext;
+                    $destino = $uploadDir . $nuevoNombre;
+                    if (move_uploaded_file($_FILES['archivo_mp3']['tmp_name'], $destino)) {
+                        $audio_url = 'frontend/audio/' . $nuevoNombre;
+                    }
+                } else {
+                    echo json_encode(['estado' => 'error', 'mensaje' => 'El formato del archivo debe ser .mp3, .wav u .ogg']);
+                    exit();
                 }
             }
         }
