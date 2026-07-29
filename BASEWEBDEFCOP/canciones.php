@@ -398,17 +398,30 @@ if (!isset($_SESSION['usuario_activo'])) {
             formData.append('accion', 'guardar');
 
             fetch('backend/api_canciones.php', { method: 'POST', body: formData })
-                .then(r => r.json())
+                .then(async r => {
+                    const rawText = await r.text();
+                    try {
+                        return JSON.parse(rawText);
+                    } catch (e) {
+                        console.error("Respuesta no-JSON del servidor:", rawText);
+                        throw new Error("El archivo MP3 excede el límite permitido por PHP o la respuesta del servidor no es válida.");
+                    }
+                })
                 .then(res => {
                     if (res.estado === 'exito') {
                         mostrarNotificacion(res.mensaje, 'exito');
-                        bootstrap.Modal.getInstance(document.getElementById('modalCancion')).hide();
+                        const modalElem = document.getElementById('modalCancion');
+                        const instance = bootstrap.Modal.getInstance(modalElem);
+                        if (instance) instance.hide();
                         cargarCanciones();
                     } else {
-                        mostrarNotificacion(res.mensaje || 'Error al guardar.', 'error');
+                        mostrarNotificacion(res.mensaje || 'Error al guardar la canción.', 'error');
                     }
                 })
-                .catch(() => mostrarNotificacion('Error de conexión.', 'error'))
+                .catch(err => {
+                    console.error("Error al guardar:", err);
+                    mostrarNotificacion(err.message || 'Error de conexión al servidor.', 'error');
+                })
                 .finally(() => { btn.disabled = false; spinner.classList.add('d-none'); });
         }
 
